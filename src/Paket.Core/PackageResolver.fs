@@ -9,19 +9,21 @@ open System.Collections.Generic
 open System
 open Paket.PackageSources
 
+type DependencySet = Set<PackageName * VersionRequirement * FrameworkRestrictions>
+
 /// Represents package details
 type PackageDetails =
     { Name : PackageName
       Source : PackageSource
       DownloadLink : string
       Unlisted : bool
-      DirectDependencies : (PackageName * VersionRequirement * FrameworkRestrictions) Set }
+      DirectDependencies : DependencySet }
 
 /// Represents data about resolved packages
 type ResolvedPackage =
     { Name : PackageName
       Version : SemVerInfo
-      Dependencies : (PackageName * VersionRequirement * FrameworkRestrictions) Set
+      Dependencies : DependencySet
       Unlisted : bool      
       FrameworkRestrictions: FrameworkRestrictions
       Source : PackageSource }
@@ -34,7 +36,7 @@ type PackageResolution = Map<NormalizedPackageName, ResolvedPackage>
 
 let allPrereleases versions = versions |> List.filter (fun v -> v.PreRelease <> None) = versions
 
-let cleanupNames (model : PackageResolution) = 
+let cleanupNames (model : PackageResolution) : PackageResolution = 
     model |> Seq.fold (fun map x -> 
                  let package = x.Value
                  let cleanup = 
